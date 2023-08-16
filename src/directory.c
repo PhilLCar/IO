@@ -4,7 +4,7 @@
 
 // Check if pattern is present
 /******************************************************************************/
-int _is_pattern(char *pattern)
+int _is_pattern(const char *pattern)
 {
   int asterisk = 0;
 
@@ -32,7 +32,7 @@ void _slash_terminate(char *buffer, char *path)
 
 #ifdef WIN
 ////////////////////////////////////////////////////////////////////////////////
-DirectoryIterator *dir(char *dirname)
+DirectoryIterator *dir(const char *dirname)
 {
   WIN32_FIND_DATA  file;
   HANDLE           handle  = NULL;

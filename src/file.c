@@ -1,7 +1,7 @@
 #include <file.h>
 
 /******************************************************************************/
-int _lindexof(char *buffer, char c)
+int _lindexof(const char *buffer, char c)
 {
   int index = -1;
 
@@ -16,7 +16,7 @@ int _lindexof(char *buffer, char c)
 }
 
 /******************************************************************************/
-int _findexof(char *buffer, char c)
+int _findexof(const char *buffer, char c)
 {
   int index = -1;
 
@@ -31,7 +31,7 @@ int _findexof(char *buffer, char c)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filenamewoext(char *buffer, char *filename)
+int filenamewoext(char *buffer, const char *filename)
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
   int len = _findexof(filename + l, '.') + l;
@@ -45,7 +45,7 @@ int filenamewoext(char *buffer, char *filename)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filepath(char *buffer, char *filename)
+int filepath(char *buffer, const char *filename)
 {
   int len = _lindexof(filename, PATH_MARKER) + 1;
 
@@ -58,7 +58,7 @@ int filepath(char *buffer, char *filename)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int fileext(char *buffer, char *filename)
+int fileext(char *buffer, const char *filename)
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
   int len = _findexof(filename + l, '.') + l;
@@ -69,7 +69,7 @@ int fileext(char *buffer, char *filename)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filenamewopath(char *buffer, char *filename)
+int filenamewopath(char *buffer, const char *filename)
 {
   int len = _lindexof(filename, PATH_MARKER) + 1;
 
@@ -80,7 +80,7 @@ int filenamewopath(char *buffer, char *filename)
 
 #ifdef WIN
 ////////////////////////////////////////////////////////////////////////////////
-int fileexists(char *filename, FilePermission permission) {
+int fileexists(const char *filename, FilePermission permission) {
    WIN32_FIND_DATA file;
    HANDLE handle = FindFirstFile(filename, &file) ;
    int found = handle != INVALID_HANDLE_VALUE;
@@ -94,7 +94,7 @@ int fileexists(char *filename, FilePermission permission) {
 }
 #else
 ////////////////////////////////////////////////////////////////////////////////
-int fileexists(char *filename, FilePermission permission) {
+int fileexists(const char *filename, FilePermission permission) {
   int a = 0;
 
   switch (permission) {
