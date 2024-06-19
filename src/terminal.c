@@ -68,7 +68,7 @@ void popcursor()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ljust(char *str, char *buffer, int size) {
+void ljust(const char *str, char *buffer, int size) {
   int len = strlen(str);
   
   if (len <= size) {
@@ -82,7 +82,7 @@ void ljust(char *str, char *buffer, int size) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void rjust(char *str, char *buffer, int size) {
+void rjust(const char *str, char *buffer, int size) {
   int len = strlen(str);
   
   if (len <= size) {
@@ -96,7 +96,7 @@ void rjust(char *str, char *buffer, int size) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void cjust(char *str, char *buffer, int size) {
+void cjust(const char *str, char *buffer, int size) {
   int len = strlen(str);
   int s   = (size - len) / 2;
 

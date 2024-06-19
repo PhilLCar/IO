@@ -2,6 +2,7 @@
 #define TERMINAL_H
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef WIN
 #include <windows.h>
@@ -157,8 +158,8 @@ void       placecursor(int x, int y);
 void       movecursor(int x, int y);
 void       pushcursor();
 void       popcursor();
-void       ljust(char *str, char *buffer, int size);
-void       rjust(char *str, char *buffer, int size);
-void       cjust(char *str, char *buffer, int size);
+void       ljust(const char *str, char *buffer, int size);
+void       rjust(const char *str, char *buffer, int size);
+void       cjust(const char *str, char *buffer, int size);
 
 #endif

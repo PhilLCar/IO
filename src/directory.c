@@ -18,7 +18,7 @@ int _is_pattern(const char *pattern)
 
 // Makes sure the path is terminated properly
 /******************************************************************************/
-void _slash_terminate(char *buffer, char *path)
+void _slash_terminate(char *buffer, const char *path)
 {
   int len = strlen(path);
 
@@ -95,7 +95,7 @@ int dirlastmod(const char *dirname)
 
   modif = atoi(buffer);
 
-  fclose(result);
+  pclose(result);
   
   return modif;
 }

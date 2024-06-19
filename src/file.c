@@ -5,11 +5,8 @@ int _lindexof(const char *buffer, char c)
 {
   int index = -1;
 
-  for (int i = 0;; i++) {
-    if (!buffer[i]) {
-      if (index < 0) index = i;
-      break;
-    } else if (buffer[i] == c) index = i;
+  for (int i = 0; buffer[i]; i++) {
+    if (buffer[i] == c) index = i;
   }
 
   return index;
