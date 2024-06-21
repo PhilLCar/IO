@@ -1,32 +1,18 @@
 #include <directory.h>
 
-#define TYPENAME DirItem
-
-// Check if pattern is present
-/******************************************************************************/
-int _is_pattern(const char *pattern)
-{
-  int asterisk = 0;
-
-  for (int i = 0; pattern[i]; i++) if (pattern[i] == '*') {
-    asterisk  = 1;
-    break;
-  }
-
-  return asterisk;
-}
-
 // Makes sure the path is terminated properly
 /******************************************************************************/
 void _slash_terminate(char *buffer, const char *path)
 {
-  int len = strlen(path);
+  int len = 0;
 
-  strcpy(buffer, path);
+  do {
+    buffer[len] = path[len];
+  } while (path[len++]);
 
-  if (path[len - 1] != PATH_MARKER) {
-    buffer[len] = PATH_MARKER;
-    buffer[len + 1] = 0;
+  if (path[len - 2] != PATH_MARKER) {
+    buffer[len - 1] = PATH_MARKER;
+    buffer[len] = 0;
   }
 }
 
@@ -66,21 +52,34 @@ DirectoryIterator *dir(const char *dirname)
 /******************************************************************************/
 int _match(char *pattern, char *string)
 {
-  int i, j;
+  int i, j, si, sj;
 
-  for (i = 0, j = 0; pattern[i] && string[j]; j++) {
+  for (i = 0, j = 0, si = -1, sj = -1; string[j]; j++) {
     if (pattern[i] == '*') {
-      if (pattern[i + 1] == string[j + 1]) i++;
+      if (si < 0) {
+        si = i;
+        sj = j;
+      }
+      // Attempt to continue matching
+      if (pattern[i + 1] == string[j]) i += 2;
     } 
-    else if (pattern[i] != string[j]) return 0;
+    else if (!pattern[i] || pattern[i] != string[j]) {
+      if (si >= 0) {
+        i = si;
+        j = sj++;
+      }
+      else break;
+    }
     else i++;
   }
 
-  return !pattern[i];
+  if (pattern[i] == '*') ++i;
+
+  return !pattern[i] && !pattern[j];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int dirlastmod(const char *dirname)
+int dlastmod(const char *dirname)
 {
   int   modif = 0;
   char  buffer[256];
@@ -101,22 +100,24 @@ int dirlastmod(const char *dirname)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-DirectoryIterator *dir(const char *dirname)
+DirectoryIterator *dopen(const char *dirname)
 {
-  DirectoryIterator *di       = malloc(sizeof(DirectoryIterator));
-  int                pattern  = _is_pattern(dirname);
+  DirectoryIterator *di = malloc(sizeof(DirectoryIterator));
 
-  if (pattern) {
-    filenamewopath(di->name, dirname);
+  // Does it contain a glob?
+  if (strchr(dirname, '*') != NULL) {
+    filenamewopath(di->filter, dirname);
     filepath(di->path, dirname);
   } else {
-    di->name[0] = 0;
+    di->filter[0] = 0;
     _slash_terminate(di->path, dirname);
   }
 
-  di->dir = opendir(di->path);
+  di->handle = opendir(di->path);
 
-  if (!di->dir) {
+  if (di->handle) {
+    dnext(&di);
+  } else {
     free(di);
     di = NULL;
   }
@@ -124,27 +125,45 @@ DirectoryIterator *dir(const char *dirname)
   return di;
 }
 
-DirectoryInformation *dirnext(DirectoryIterator *iterator)
+DirectoryItem *dnext(DirectoryIterator **iterator)
 {
-  DirectoryInformation *info = &iterator->info;
-  struct dirent        *d;
+  DirectoryIterator *iter    = *iterator;
+  DirectoryItem     *current = &iter->current;
 
-  while ((d = readdir(iterator->dir))) {
+  struct dirent *d;
+
+  while ((d = readdir(iter->handle))) {
+    // Skip relative directories
     if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, "..")) continue;
-    if (!iterator->name[0] || _match(iterator->name, d->d_name)) {
 
-      sprintf(info->name, "%s", d->d_name);
-      info->type = d->d_type == DT_DIR ? DIRTYPE_DIRECTORY : (d->d_type == DT_REG ? DIRTYPE_FILE : DIRTYPE_OTHER);
+    if (!iter->filter[0] || _match(iter->filter, d->d_name)) {
+
+      sprintf(current->name, "%s", d->d_name);
+      current->type = d->d_type == DT_DIR 
+        ? DIRTYPE_DIRECTORY 
+        : (d->d_type == DT_REG 
+          ? DIRTYPE_FILE 
+          : DIRTYPE_OTHER);
       break;
     }
   }
+
   if (!d) {
-    closedir(iterator->dir);
-    free(iterator);
-    info = NULL;
+    dclose(iterator);
   }
 
-  return info;
+  return current;
+}
+
+void dclose(DirectoryIterator **iterator)
+{
+  if (*iterator)
+  {
+    closedir((*iterator)->handle);
+
+    free(*iterator);
+    *iterator = NULL;
+  }
 }
 
 #endif

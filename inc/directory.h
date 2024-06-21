@@ -26,20 +26,21 @@ typedef enum dir_type {
   DIRTYPE_OTHER
 } DirectoryType;
 
-typedef struct dir_info {
+typedef struct dir_item {
   char          name[DIRECTORY_FILE_MAXLEN];
   DirectoryType type;
-} DirectoryInformation;
+} DirectoryItem;
 
 typedef struct dir_iterator {
-  char                  path[DIRECTORY_PATH_MAXLEN];
-  char                  name[DIRECTORY_FILE_MAXLEN];
-  DIR                  *dir;
-  DirectoryInformation  info;
+  char           path[DIRECTORY_PATH_MAXLEN];
+  char           filter[DIRECTORY_FILE_MAXLEN];
+  void          *handle;
+  DirectoryItem  current;
 } DirectoryIterator;
 
-int                   dirlastmod(const char *dirname);
-DirectoryIterator    *dir(const char *dirname);
-DirectoryInformation *dirnext(DirectoryIterator *iterator);
+int                dlastmod(const char *dirname);
+DirectoryIterator *dopen(const char *dirname);
+DirectoryItem     *dnext(DirectoryIterator **iterator);
+void               dclose(DirectoryIterator **iterator);
 
 #endif
