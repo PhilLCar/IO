@@ -125,6 +125,7 @@ DirectoryIterator *dopen(const char *dirname)
   return di;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 DirectoryItem *dnext(DirectoryIterator **iterator)
 {
   DirectoryIterator *iter    = *iterator;
@@ -155,6 +156,7 @@ DirectoryItem *dnext(DirectoryIterator **iterator)
   return current;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void dclose(DirectoryIterator **iterator)
 {
   if (*iterator)
@@ -165,5 +167,24 @@ void dclose(DirectoryIterator **iterator)
     *iterator = NULL;
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void dcreate(const char *dirname)
+{
+  char buffer[1024];
+
+  sprintf(buffer, "mkdir -p %s", dirname);
+  system(buffer);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void dremove(const char *dirname)
+{
+  char buffer[1024];
+
+  sprintf(buffer, "rmdir -p %s", dirname);
+  system(buffer);
+}
+
 
 #endif

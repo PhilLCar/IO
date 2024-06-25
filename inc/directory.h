@@ -42,5 +42,7 @@ int                dlastmod(const char *dirname);
 DirectoryIterator *dopen(const char *dirname);
 DirectoryItem     *dnext(DirectoryIterator **iterator);
 void               dclose(DirectoryIterator **iterator);
+void               dcreate(const char *dirname);
+void               dremove(const char *dirname);
 
 #endif
