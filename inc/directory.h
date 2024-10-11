@@ -14,6 +14,8 @@
 #include <dirent.h>
 #endif
 
+#include <diagnostic.h>
+
 #include "file.h"
 #include "osal.h"
 
