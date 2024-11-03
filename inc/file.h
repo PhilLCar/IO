@@ -21,10 +21,10 @@ typedef enum file_permission {
   FILE_EXECUTE
 } FilePermission;
 
-int filenamewoext(char *buffer, const char *filename);
-int filepath(char *buffer, const char *filename);
-int fileext(char *buffer, const char *filename);
-int filenamewopath(char *buffer, const char *filename);
+int filenamewoext(const char *filename, char *buffer, int size);
+int filepath(const char *filename, char *buffer, int size);
+int fileext(const char *filename, char *buffer, int size);
+int filenamewopath(const char *filename, char *buffer, int size);
 int fileexists(const char *filename, FilePermission permission);
 
 #endif

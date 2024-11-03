@@ -28,51 +28,67 @@ int _findexof(const char *buffer, char c)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filenamewoext(char *buffer, const char *filename)
+int filenamewoext(const char *filename, char *buffer, int size)
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
   int len = _findexof(filename + l, '.') + l;
 
   if (buffer) {
-    memcpy(buffer, filename, len);
-    buffer[len] = 0;
+    int max = size > len ? len : size;
+
+    memcpy(buffer, filename, max - 1);
+    buffer[max] = 0;
   }
   
   return len;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filepath(char *buffer, const char *filename)
+int filepath(const char *filename, char *buffer, int size)
 {
   int len = _lindexof(filename, PATH_MARKER) + 1;
 
   if (buffer) {
-    memcpy(buffer, filename, len);
-    buffer[len] = 0;
+    int max = size > len ? len : size;
+
+    memcpy(buffer, filename, max - 1);
+    buffer[max] = 0;
   }
   
   return len;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int fileext(char *buffer, const char *filename)
+int fileext(const char *filename, char *buffer, int size)
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
   int len = _findexof(filename + l, '.') + l;
+  int ext = strlen(filename + len) + 1;
 
-  if (buffer) strcpy(buffer, filename + len);
+  if (buffer) {
+    int max = size > ext ? ext : size;
+
+    memcpy(buffer, filename + len, max - 1);
+    buffer[max] = 0;
+  }
   
-  return len;
+  return ext;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filenamewopath(char *buffer, const char *filename)
+int filenamewopath(const char *filename, char *buffer, int size)
 {
-  int len = _lindexof(filename, PATH_MARKER) + 1;
+  int len  = _lindexof(filename, PATH_MARKER) + 1;
+  int name = strlen(filename + len) + 1;
 
-  if (buffer) strcpy(buffer, filename + len);
+  if (buffer) {
+    int max = size > name ? name : size;
+
+    memcpy(buffer, filename + len, max - 1);
+    buffer[max] = 0;
+  }
   
-  return len;
+  return name;
 }
 
 #ifdef WIN

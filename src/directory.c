@@ -106,8 +106,8 @@ DirectoryIterator *dopen(const char *dirname)
 
   // Does it contain a glob?
   if (strchr(dirname, '*') != NULL) {
-    filenamewopath(di->filter, dirname);
-    filepath(di->path, dirname);
+    filenamewopath(dirname, di->filter, sizeof(di->filter));
+    filepath(dirname, di->path, sizeof(di->path));
   } else {
     di->filter[0] = 0;
     _slash_terminate(di->path, dirname);
@@ -167,6 +167,17 @@ void dclose(DirectoryIterator **iterator)
     *iterator = NULL;
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void dfullname(const DirectoryIterator *iterator, char *buffer, int bufsize)
+{
+  if (iterator && (strlen(iterator->path) + strlen(iterator->current.name)) < bufsize) {
+    sprintf(buffer, "%s%s", iterator->path, iterator->current.name);
+  } else {
+    sprintf(buffer, "%s", "");
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void dcreate(const char *dirname)
