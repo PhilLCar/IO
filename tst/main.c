@@ -2,6 +2,21 @@
 
 int main(void)
 {
+  const char *path = "This/Is/A/Test/Path.txt";
+
+  char buffer[4096];
+
+  fileext(path, buffer, sizeof(buffer));
+  printf("%s\n", buffer);
+
+  filenamewoext(path, buffer, sizeof(buffer));
+  printf("%s\n", buffer);
+
+  filenamewopath(path, buffer, sizeof(buffer));
+  printf("%s\n", buffer);
+
+  filepath(path, buffer, sizeof(buffer));
+  printf("%s\n", buffer);
 
   CHECK_MEMORY
 

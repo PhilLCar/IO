@@ -34,10 +34,10 @@ int filenamewoext(const char *filename, char *buffer, int size)
   int len = _findexof(filename + l, '.') + l;
 
   if (buffer) {
-    int max = size > len ? len : size;
+    int min = size > len ? len : size;
 
-    memcpy(buffer, filename, max - 1);
-    buffer[max] = 0;
+    memcpy(buffer, filename, min);
+    buffer[min] = 0;
   }
   
   return len;
@@ -49,13 +49,36 @@ int filepath(const char *filename, char *buffer, int size)
   int len = _lindexof(filename, PATH_MARKER) + 1;
 
   if (buffer) {
-    int max = size > len ? len : size;
+    int min = size > len ? len : size;
 
-    memcpy(buffer, filename, max - 1);
-    buffer[max] = 0;
+    memcpy(buffer, filename, min);
+    buffer[min] = 0;
   }
   
   return len;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int filepathcombine(const char *path, const char *file, char *buffer, int size)
+{
+  int path_len = strlen(path);
+  int file_len = strlen(file);
+  int add      = path[path_len - 1] != PATH_MARKER && file[0] != PATH_MARKER;
+
+  int total = path_len + file_len + add;
+
+  if (total < size)
+  {
+    if (add) {
+      sprintf(buffer, "%s%c%s", path, PATH_MARKER, file);
+    } else {
+      sprintf(buffer, "%s%s", path, file);
+    }
+  } else {
+    total = 0;
+  }
+
+  return total;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,13 +86,13 @@ int fileext(const char *filename, char *buffer, int size)
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
   int len = _findexof(filename + l, '.') + l;
-  int ext = strlen(filename + len) + 1;
+  int ext = strlen(filename + len);
 
   if (buffer) {
-    int max = size > ext ? ext : size;
+    int min = size > ext ? ext : size;
 
-    memcpy(buffer, filename + len, max - 1);
-    buffer[max] = 0;
+    memcpy(buffer, filename + len, min);
+    buffer[min] = 0;
   }
   
   return ext;
@@ -79,13 +102,13 @@ int fileext(const char *filename, char *buffer, int size)
 int filenamewopath(const char *filename, char *buffer, int size)
 {
   int len  = _lindexof(filename, PATH_MARKER) + 1;
-  int name = strlen(filename + len) + 1;
+  int name = strlen(filename + len);
 
   if (buffer) {
-    int max = size > name ? name : size;
+    int min = size > name ? name : size;
 
-    memcpy(buffer, filename + len, max - 1);
-    buffer[max] = 0;
+    memcpy(buffer, filename + len, min);
+    buffer[min] = 0;
   }
   
   return name;
