@@ -6,16 +6,16 @@ int main(void)
 
   char buffer[4096];
 
-  fileext(path, buffer, sizeof(buffer));
+  fileext(path, sizeof(buffer), buffer);
   printf("%s\n", buffer);
 
-  filenamewoext(path, buffer, sizeof(buffer));
+  filenamewoext(path, sizeof(buffer), buffer);
   printf("%s\n", buffer);
 
-  filenamewopath(path, buffer, sizeof(buffer));
+  filenamewopath(path, sizeof(buffer), buffer);
   printf("%s\n", buffer);
 
-  filepath(path, buffer, sizeof(buffer));
+  filepath(path, sizeof(buffer), buffer);
   printf("%s\n", buffer);
 
   CHECK_MEMORY

@@ -28,15 +28,15 @@ int _findexof(const char *buffer, char c)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filenamewoext(const char *filename, char *buffer, int size)
+int filenamewoext(const char *filename, int size, char buffer[size])
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
-  int len = _findexof(filename + l, '.') + l;
+  int len = _findexof(filename + l, '.');
 
   if (buffer) {
     int min = size > len ? len : size;
 
-    memcpy(buffer, filename, min);
+    memcpy(buffer, filename + l, min);
     buffer[min] = 0;
   }
   
@@ -44,7 +44,7 @@ int filenamewoext(const char *filename, char *buffer, int size)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filepath(const char *filename, char *buffer, int size)
+int filepath(const char *filename, int size, char buffer[size])
 {
   int len = _lindexof(filename, PATH_MARKER) + 1;
 
@@ -59,7 +59,7 @@ int filepath(const char *filename, char *buffer, int size)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filepathcombine(const char *path, const char *file, char *buffer, int size)
+int filepathcombine(const char *path, const char *file, int size, char buffer[size])
 {
   int path_len = strlen(path);
   int file_len = strlen(file);
@@ -82,7 +82,7 @@ int filepathcombine(const char *path, const char *file, char *buffer, int size)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int fileext(const char *filename, char *buffer, int size)
+int fileext(const char *filename, int size, char buffer[size])
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
   int len = _findexof(filename + l, '.') + l;
@@ -99,7 +99,7 @@ int fileext(const char *filename, char *buffer, int size)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filenamewopath(const char *filename, char *buffer, int size)
+int filenamewopath(const char *filename, int size, char buffer[size])
 {
   int len  = _lindexof(filename, PATH_MARKER) + 1;
   int name = strlen(filename + len);
