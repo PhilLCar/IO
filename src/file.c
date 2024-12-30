@@ -115,6 +115,7 @@ int filenamewopath(const char *filename, int size, char buffer[size])
 }
 
 #ifdef WIN
+
 ////////////////////////////////////////////////////////////////////////////////
 int fileexists(const char *filename, FilePermission permission) {
    WIN32_FIND_DATA file;
@@ -128,7 +129,9 @@ int fileexists(const char *filename, FilePermission permission) {
    permission;
    return found;
 }
+
 #else
+
 ////////////////////////////////////////////////////////////////////////////////
 int fileexists(const char *filename, FilePermission permission) {
   int a = 0;
@@ -150,4 +153,10 @@ int fileexists(const char *filename, FilePermission permission) {
 
   return !access(filename, a);
 }
+
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
+void filecreate(const char *filename) {
+  fclose(fopen(filename, "a+"));
+}
