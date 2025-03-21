@@ -16,36 +16,35 @@
 
 #include <diagnostic.h>
 
-#include "file.h"
 #include "osal.h"
-
-#define DIRECTORY_PATH_MAXLEN 2048
-#define DIRECTORY_FILE_MAXLEN 2048
+#include "file.h"
+#include "path.h"
 
 typedef enum dir_type {
   DIRTYPE_FILE,
   DIRTYPE_DIRECTORY,
-  DIRTYPE_OTHER
+  DIRTYPE_OTHER,
+  DIRTYPE_DONE
 } DirectoryType;
 
 typedef struct dir_item {
-  char          name[DIRECTORY_FILE_MAXLEN];
+  char          name[PATH_MAX_LENGTH];
   DirectoryType type;
 } DirectoryItem;
 
 typedef struct dir_iterator {
-  char           path[DIRECTORY_PATH_MAXLEN];
-  char           filter[DIRECTORY_FILE_MAXLEN];
+  char           path[PATH_MAX_LENGTH];
+  char           filter[PATH_MAX_LENGTH];
   void          *handle;
   DirectoryItem  current;
 } DirectoryIterator;
 
-int                dlastmod(const char *dirname);
 DirectoryIterator *dopen(const char *dirname);
-DirectoryItem     *dnext(DirectoryIterator **iterator);
-void               dclose(DirectoryIterator **iterator);
-void               dfullname(const DirectoryIterator *iterator, int size, char buffer[size]);
-void               dcreate(const char *dirname);
-void               dremove(const char *dirname);
+void               dclose(DirectoryIterator *iterator);
+DirectoryItem     *dnext(DirectoryIterator *iterator);
+int                ddone(DirectoryIterator *iterator);
+void               dclose(DirectoryIterator *iterator);
+void               dname(const DirectoryIterator *iterator, int size, char buffer[size]);
+int                dexists(const char *dirname);
 
 #endif

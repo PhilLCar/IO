@@ -1,28 +1,55 @@
+#define LOG_LEVEL LOG_DEBUG
+#include <log.h>
 #include <directory.h>
 
 int main(void)
 {
-  const char *path = "This/Is/A/Test/Path.txt";
+  const char *path = "file:///This/Is/A/Test/Path.txt";
 
   char buffer[4096];
 
-  fileext(path, sizeof(buffer), buffer);
+  fext(path, sizeof(buffer), buffer);
   printf("%s\n", buffer);
 
-  filenamewoext(path, sizeof(buffer), buffer);
+  fname(path, sizeof(buffer), buffer);
   printf("%s\n", buffer);
 
-  filenamewopath(path, sizeof(buffer), buffer);
+  fnamext(path, sizeof(buffer), buffer);
   printf("%s\n", buffer);
 
-  filepath(path, sizeof(buffer), buffer);
+  fpath(path, sizeof(buffer), buffer);
   printf("%s\n", buffer);
 
   CHECK_MEMORY
 
-  for (DirectoryIterator *di = dopen("."); di; dnext(&di))
+  DEBUG("This is a debug log!");
+  INFO("This is an info log!");
+  WARN("This is a warn log!");
+  ERROR("This is an error log!");
+
+  CHECK_MEMORY
+
+  printf("Test path is absolute: %s\n", pisabs(path) ? "true" : "false");
+
+  pprotocol(path, sizeof(buffer), buffer);
+
+  printf("Protocol: %s\n", buffer);
+
+  pclean(path, sizeof(buffer), buffer);
+
+  printf("Cleaned path: %s\n", buffer);
+
+  pcombine("test/path/", "/rest/of/path.txt", sizeof(buffer), buffer);
+
+  printf("Combined path: %s\n", buffer);
+
+  CHECK_MEMORY
+
+  for (DirectoryIterator *di = dopen("."); !ddone(di); dnext(di))
   {
-    printf("%s\n", di->current.name);
+    dname(di, sizeof(buffer), buffer);
+
+    printf("%s\n", buffer);
   }
 
   STOP_WATCHING

@@ -2,7 +2,7 @@
 
 // Makes sure the path is terminated properly
 /******************************************************************************/
-void _slash_terminate(char *buffer, const char *path)
+void _dterminate(char *buffer, const char *path)
 {
   int len = 0;
 
@@ -10,9 +10,8 @@ void _slash_terminate(char *buffer, const char *path)
     buffer[len] = path[len];
   } while (path[len++]);
 
-  if (path[len - 2] != PATH_MARKER) {
-    buffer[len - 1] = PATH_MARKER;
-    buffer[len] = 0;
+  while (path[len - 1] == PATH_MARKER) {
+    buffer[--len] = 0;
   }
 }
 
@@ -24,7 +23,7 @@ DirectoryIterator *dir(const char *dirname)
   HANDLE           handle  = NULL;
   Array           *results = NULL;
   int              pattern = _is_pattern(dirname);
-  char            *dirpath = pattern ? filepath(dirname) : _slash_terminate(dirname);
+  char            *dirpath = pattern ? filepath(dirname) : _dterminate(dirname);
 
   if ((handle = FindFirstFile(dirname, &file)) == INVALID_HANDLE_VALUE) {
     return NULL;
@@ -79,44 +78,23 @@ int _match(char *pattern, char *string)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int dlastmod(const char *dirname)
-{
-  int   modif = 0;
-  char  buffer[256];
-  FILE *result;
-
-  sprintf(buffer, "stat -c %%Y %s", dirname);
-
-  result = popen(buffer, "r");
-  memset(buffer, 0, sizeof(buffer));
-
-  for (int c = fgetc(result), i = 0; c != EOF; c = fgetc(result), i++) buffer[i] = c;
-
-  modif = atoi(buffer);
-
-  pclose(result);
-  
-  return modif;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 DirectoryIterator *dopen(const char *dirname)
 {
   DirectoryIterator *di = malloc(sizeof(DirectoryIterator));
 
   // Does it contain a glob?
   if (strchr(dirname, '*') != NULL) {
-    filenamewopath(dirname, sizeof(di->filter), di->filter);
-    filepath(dirname, sizeof(di->path), di->path);
+    fnamext(dirname, sizeof(di->filter), di->filter);
+    fpath  (dirname, sizeof(di->path),   di->path);
   } else {
     di->filter[0] = 0;
-    _slash_terminate(di->path, dirname);
+    _dterminate(di->path, dirname);
   }
 
   di->handle = opendir(di->path);
 
   if (di->handle) {
-    dnext(&di);
+    dnext(di);
   } else {
     free(di);
     di = NULL;
@@ -126,18 +104,26 @@ DirectoryIterator *dopen(const char *dirname)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-DirectoryItem *dnext(DirectoryIterator **iterator)
+void dclose(DirectoryIterator *iterator)
 {
-  DirectoryIterator *iter    = *iterator;
-  DirectoryItem     *current = &iter->current;
+  closedir(iterator->handle);
+
+  free(iterator);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+DirectoryItem *dnext(DirectoryIterator *iterator)
+{
+  DirectoryItem *current = &iterator->current;
 
   struct dirent *d;
 
-  while ((d = readdir(iter->handle))) {
+  while ((d = readdir(iterator->handle))) {
     // Skip relative directories
     if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, "..")) continue;
 
-    if (!iter->filter[0] || _match(iter->filter, d->d_name)) {
+    if (!iterator->filter[0] || _match(iterator->filter, d->d_name)) {
 
       sprintf(current->name, "%s", d->d_name);
       current->type = d->d_type == DT_DIR 
@@ -150,52 +136,43 @@ DirectoryItem *dnext(DirectoryIterator **iterator)
   }
 
   if (!d) {
-    dclose(iterator);
+    current->type = DIRTYPE_DONE;
   }
 
   return current;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void dclose(DirectoryIterator **iterator)
+int ddone(DirectoryIterator *iterator)
 {
-  if (*iterator)
-  {
-    closedir((*iterator)->handle);
-
-    free(*iterator);
-    *iterator = NULL;
+  int done = !iterator || iterator->current.type == DIRTYPE_DONE;
+  
+  if (done) {
+    dclose(iterator);
   }
+
+  return done;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void dfullname(const DirectoryIterator *iterator, int size, char buffer[size])
+void dname(const DirectoryIterator *iterator, int size, char buffer[size])
 {
-  if (iterator && (strlen(iterator->path) + strlen(iterator->current.name)) < size) {
-    sprintf(buffer, "%s%s", iterator->path, iterator->current.name);
+  if (iterator) {
+    pcombine(iterator->path, iterator->current.name, size, buffer);
   } else {
-    sprintf(buffer, "%s", "");
+    FATAL("Iterator is NULL!");
   }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
-void dcreate(const char *dirname)
+int dexists(const char *dirname)
 {
-  char buffer[1024];
+  DirectoryIterator *iterator = dopen(dirname);
+  int                exists   = iterator != NULL;
 
-  sprintf(buffer, "mkdir -p %s", dirname);
-  system(buffer);
+  dclose(iterator);
+
+  return exists;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-void dremove(const char *dirname)
-{
-  char buffer[1024];
-
-  sprintf(buffer, "rmdir -p %s", dirname);
-  system(buffer);
-}
-
 
 #endif

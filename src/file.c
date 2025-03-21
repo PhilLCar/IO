@@ -28,96 +28,81 @@ int _findexof(const char *buffer, char c)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filenamewoext(const char *filename, int size, char buffer[size])
+int fpath(const char *filename, int size, char buffer[size])
+{
+  int len = max(_lindexof(filename, PATH_MARKER), 0);
+
+  if (buffer) {
+    if (size <= len) {
+      FATAL("Buffer overflow!");
+    }
+
+    memcpy(buffer, filename, len);
+    buffer[len] = 0;
+  }
+  
+  return len;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int fname(const char *filename, int size, char buffer[size])
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
   int len = _findexof(filename + l, '.');
 
   if (buffer) {
-    int min = size > len ? len : size;
-
-    memcpy(buffer, filename + l, min);
-    buffer[min] = 0;
-  }
-  
-  return len;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-int filepath(const char *filename, int size, char buffer[size])
-{
-  int len = _lindexof(filename, PATH_MARKER) + 1;
-
-  if (buffer) {
-    int min = size > len ? len : size;
-
-    memcpy(buffer, filename, min);
-    buffer[min] = 0;
-  }
-  
-  return len;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-int filepathcombine(const char *path, const char *file, int size, char buffer[size])
-{
-  int path_len = strlen(path);
-  int file_len = strlen(file);
-  int add      = path[path_len - 1] != PATH_MARKER && file[0] != PATH_MARKER;
-
-  int total = path_len + file_len + add;
-
-  if (total < size)
-  {
-    if (add) {
-      sprintf(buffer, "%s%c%s", path, PATH_MARKER, file);
-    } else {
-      sprintf(buffer, "%s%s", path, file);
+    if (size <= len) {
+      FATAL("Buffer overflow!");
     }
-  } else {
-    total = 0;
-  }
 
-  return total;
+    memcpy(buffer, filename + l, len);
+    buffer[len] = 0;
+  }
+  
+  return len;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int fileext(const char *filename, int size, char buffer[size])
+int fext(const char *filename, int size, char buffer[size])
 {
   int l   = _lindexof(filename, PATH_MARKER) + 1;
-  int len = _findexof(filename + l, '.') + l;
-  int ext = strlen(filename + len);
+  int ext = _findexof(filename + l, '.') + l;
+  int len = strlen(filename + ext);
 
   if (buffer) {
-    int min = size > ext ? ext : size;
+    if (size <= len) {
+      FATAL("Buffer overflow!");
+    }
 
-    memcpy(buffer, filename + len, min);
-    buffer[min] = 0;
+    memcpy(buffer, filename + ext, len);
+    buffer[len] = 0;
   }
   
-  return ext;
+  return len;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int filenamewopath(const char *filename, int size, char buffer[size])
+int fnamext(const char *filename, int size, char buffer[size])
 {
-  int len  = _lindexof(filename, PATH_MARKER) + 1;
-  int name = strlen(filename + len);
+  int name = _lindexof(filename, PATH_MARKER) + 1;
+  int len  = strlen(filename + name);
 
   if (buffer) {
-    int min = size > name ? name : size;
+    if (size <= len) {
+      FATAL("Buffer overflow!");
+    }
 
-    memcpy(buffer, filename + len, min);
-    buffer[min] = 0;
+    memcpy(buffer, filename + name, len);
+    buffer[len] = 0;
   }
   
-  return name;
+  return len;
 }
 
 #ifdef WIN
 
 ////////////////////////////////////////////////////////////////////////////////
-int fileexists(const char *filename, FilePermission permission) {
+int fexists(const char *filename, FilePermission permission) {
    WIN32_FIND_DATA file;
    HANDLE handle = FindFirstFile(filename, &file) ;
    int found = handle != INVALID_HANDLE_VALUE;
@@ -133,7 +118,7 @@ int fileexists(const char *filename, FilePermission permission) {
 #else
 
 ////////////////////////////////////////////////////////////////////////////////
-int fileexists(const char *filename, FilePermission permission) {
+int fexists(const char *filename, FilePermission permission) {
   int a = 0;
 
   switch (permission) {
@@ -155,8 +140,3 @@ int fileexists(const char *filename, FilePermission permission) {
 }
 
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-void filecreate(const char *filename) {
-  fclose(fopen(filename, "a+"));
-}
