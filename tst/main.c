@@ -1,6 +1,10 @@
-#define LOG_LEVEL LOG_DEBUG
 #include <log.h>
 #include <directory.h>
+
+// TODO: remove . and .. from paths in clean
+// TODO: to abs and to rel path methods
+// TODO: update all other packages with these changes (especially except)
+// TODO: make debug logs accept parameters
 
 int main(void)
 {
