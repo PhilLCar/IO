@@ -49,8 +49,7 @@ int main(void)
 
   printf("To absolute: %s\n", buffer);
 
-  // TODO: test subfolder, test workdir
-  prel("/home/phil/Program/Utilities/IO/test", sizeof(buffer), buffer);
+  prel(buffer, sizeof(buffer), buffer);
 
   printf("To relative: %s\n", buffer);
 
