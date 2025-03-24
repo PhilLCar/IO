@@ -1,10 +1,8 @@
 #include <log.h>
 #include <directory.h>
 
-// TODO: remove . and .. from paths in clean
 // TODO: to abs and to rel path methods
 // TODO: update all other packages with these changes (especially except)
-// TODO: make debug logs accept parameters
 
 int main(void)
 {
@@ -29,7 +27,7 @@ int main(void)
   DEBUG("This is a %s log!", "debug");
   INFO ("This is a %s log!", "info");
   WARN ("This is a %s log!", "warn");
-  ERROR("This is a %s log!", "error");
+  ERROR("This is an error log!");
 
   CHECK_MEMORY
 
@@ -46,6 +44,15 @@ int main(void)
   pcombine("test/path/", "/rest/of/path.txt", sizeof(buffer), buffer);
 
   printf("Combined path: %s\n", buffer);
+
+  pabs(".././Collection/wrong/../right/ok", sizeof(buffer), buffer);
+
+  printf("To absolute: %s\n", buffer);
+
+  // TODO: test subfolder, test workdir
+  prel("/home/phil/Program/Utilities/IO/test", sizeof(buffer), buffer);
+
+  printf("To relative: %s\n", buffer);
 
   CHECK_MEMORY
 

@@ -39,9 +39,10 @@ void* run(const char *command)
   size_t  init   = 4096;
   FILE   *result = popen(command, "r");
   char   *text   = malloc(init);
+  int     len    = 0;
 
-  for (int c = fgetc(result), i = 0; c != EOF; c = fgetc(result), i++) {
-    if (i >= init) {
+  for (int c = fgetc(result); c != EOF; c = fgetc(result), len++) {
+    if (len >= init) {
       text = realloc(text, init <<= 1);
       
       if (!text) {
@@ -49,7 +50,11 @@ void* run(const char *command)
       }
     }
 
-    text[i] = c;
+    if (c != '\r') text[len] = c;
+  }
+
+  while (len > 0 && text[--len] == '\n') {
+    text[len] = 0;
   }
 
   pclose(result);
@@ -104,7 +109,7 @@ long lastmod(const char *filename)
 void workdir(int size, char buffer[size]) {
   char *result = run("pwd");
 
-  if (strlen(result) > size) {
+  if (strlen(result) > size - 1) {
     FATAL("Buffer overflow!");
   } else {
     strcpy(buffer, result);

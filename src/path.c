@@ -108,6 +108,29 @@ int _pclean(char **split, int size, char buffer[size]) {
   int marker = PATH_MARKER;
   int copied = 0;
 
+  // First-pass: reduce
+  for (int i = 0; split[i]; i++) {
+    if (i > 0 && !strcmp(split[i], ".")) {
+      free(split[i]);
+      split[i] = NULL;
+
+      copied++;
+    } else if (!strcmp(split[i], "..") && i - copied - 1 > 0 &&  split[i - copied - 1][0] != '.') {
+      free(split[i - copied - 1]);
+      split[i - copied - 1] = NULL;
+      free(split[i]);
+      split[i] = NULL;
+
+      copied += 2;
+    } else {
+      split[i - copied] = split[i];
+      if (copied) split[i] = NULL;
+    }
+  }
+
+  copied = 0;
+
+  // Second-pass: print
   for (int i = 0; split[i]; i++) {
     if (!i) {
       char *prot = strchr(split[0], ':');
@@ -139,8 +162,6 @@ int _pclean(char **split, int size, char buffer[size]) {
 int pisabs(const char *path)
 {
   int prot = pprotocol(path, 0, NULL);
-
-  printf("%d\n", prot);
 
   #ifdef WIN
     if (prot == 0) {
@@ -189,15 +210,54 @@ int pclean(const char *path, int size, char buffer[size])
 ////////////////////////////////////////////////////////////////////////////////
 int prel(const char *path, int size, char buffer[size])
 {
-  //char **split = _psplit(path);
+  char fbuf[PATH_MAX_LENGTH];
 
-  return 0;
+  workdir(sizeof(fbuf), fbuf);
+
+  char **psplit = _psplit(path);
+  char **fsplit = _psplit(fbuf);
+
+  int plen = 0, flen = 0;
+
+  for (; psplit[plen]; plen++);
+  for (; fsplit[flen]; flen++);
+
+  int same = 0;
+
+  for (; psplit[same] && fsplit[same] && !strcmp(psplit[same], fsplit[same]); same++);
+
+  int    nsize   = plen + flen - (same << 1) + (same == flen);
+  char **nsplit = malloc((nsize + 1) * sizeof(const char*));
+
+  nsplit[nsize] = NULL;
+
+  if (flen == same) {
+    nsplit[0] = malloc(2);
+    sprintf(nsplit[0], "%s", ".");
+  } else for (int i = 0; i < flen - same; i++) {
+    nsplit[i] = malloc(3);
+    sprintf(nsplit[i], "%s", "..");
+  }
+
+  for (int i = same; i < plen; i++) {
+    nsplit[nsize - plen + i] = psplit[i];
+    psplit[i] = NULL;
+  }
+
+  _pfree(psplit);
+  _pfree(fsplit);
+
+  return _pclean(nsplit, size, buffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 int pabs(const char *path, int size, char buffer[size])
 {
-  return 0;
+  char pbuf[PATH_MAX_LENGTH];
+  
+  workdir(sizeof(pbuf), pbuf);
+
+  return pcombine(pbuf, path, size, buffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
