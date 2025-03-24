@@ -27,23 +27,30 @@ void _fatal(const char *filename, int line, const char *message)
 }
 
 
-void loglvl(const char *filename, int line, int lvl, const char *message)
+void loglvl(const char *filename, int line, int lvl, const char *message, ...)
 {
+  char buffer[LOG_MSG_MAX];
+
+  va_list argptr;
+  va_start(argptr, message);
+  vsnprintf(buffer, sizeof(buffer), message, argptr);
+  va_end(argptr);
+
   switch (lvl) {
     case LOG_DEBUG:
-      _debug(filename, line, message);
+      _debug(filename, line, buffer);
       break;
     case LOG_INFO:
-      _info(filename, line, message);
+      _info(filename, line, buffer);
       break;
     case LOG_WARN:
-      _warn(filename, line, message);
+      _warn(filename, line, buffer);
       break;
     case LOG_ERROR:
-      _error(filename, line, message);
+      _error(filename, line, buffer);
       break;
     case LOG_FATAL:
-      _fatal(filename, line, message);
+      _fatal(filename, line, buffer);
       break;
     default:
       _error(filename, line, "Unknown log level!");

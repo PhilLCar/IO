@@ -26,10 +26,10 @@ int main(void)
 
   CHECK_MEMORY
 
-  DEBUG("This is a debug log!");
-  INFO("This is an info log!");
-  WARN("This is a warn log!");
-  ERROR("This is an error log!");
+  DEBUG("This is a %s log!", "debug");
+  INFO ("This is a %s log!", "info");
+  WARN ("This is a %s log!", "warn");
+  ERROR("This is a %s log!", "error");
 
   CHECK_MEMORY
 
