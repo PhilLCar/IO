@@ -1,9 +1,6 @@
 #include <log.h>
 #include <directory.h>
 
-// TODO: to abs and to rel path methods
-// TODO: update all other packages with these changes (especially except)
-
 int main(void)
 {
   const char *path = "file:///This/Is/A/Test/Path.txt";
