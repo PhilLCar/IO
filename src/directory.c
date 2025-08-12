@@ -15,38 +15,23 @@ void _dterminate(char *buffer, const char *path)
   }
 }
 
-#ifdef WIN
-////////////////////////////////////////////////////////////////////////////////
-DirectoryIterator *dir(const char *dirname)
+// Check if the directory name is a pattern (glob)
+/******************************************************************************/
+int _is_pattern(const char *path)
 {
-  WIN32_FIND_DATA  file;
-  HANDLE           handle  = NULL;
-  Array           *results = NULL;
-  int              pattern = _is_pattern(dirname);
-  char            *dirpath = pattern ? filepath(dirname) : _dterminate(dirname);
-
-  if ((handle = FindFirstFile(dirname, &file)) == INVALID_HANDLE_VALUE) {
-    return NULL;
-  } else {
-    results = NEW (array) (sizeof(DirItem));
-  }
-
-  do {
-    char          buffer[2048];
-    DirectoryItem di;
-
-    sprintf(buffer, "%s%s", dirpath, file.cFileName);
-    DirItem_cons(&di, buffer, 
-      file.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? DIRITEM_DIRECTORY : DIRITEM_FILE);
-    push(results, &di);
-  }
-  while(FindNextFile(handle, &file));
-
-  FindClose(handle);
-  if (dirpath != dirname) free(dirpath);
-  return results;
+  return strchr(path, '*') != NULL;
 }
+
+#ifdef WIN
+
+void _fill_current_item(DirectoryItem *current, WIN32_FIND_DATAA *file)
+{
+  sprintf(current->name, "%s", file->cFileName);
+  current->type = file->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? DIRTYPE_DIRECTORY : DIRTYPE_FILE;
+}
+
 #else
+
 // Matches a file pattern
 /******************************************************************************/
 int _match(char *pattern, char *string)
@@ -77,13 +62,15 @@ int _match(char *pattern, char *string)
   return !pattern[i] && !pattern[j];
 }
 
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 DirectoryIterator *dopen(const char *dirname)
 {
   DirectoryIterator *di = malloc(sizeof(DirectoryIterator));
 
   // Does it contain a glob?
-  if (strchr(dirname, '*') != NULL) {
+  if (_is_pattern(dirname)) {
     fnamext(dirname, sizeof(di->filter), di->filter);
     fpath  (dirname, sizeof(di->path),   di->path);
   } else {
@@ -91,14 +78,27 @@ DirectoryIterator *dopen(const char *dirname)
     _dterminate(di->path, dirname);
   }
 
-  di->handle = opendir(di->path);
+#ifdef WIN
+  {
+    WIN32_FIND_DATAA file;
 
-  if (di->handle) {
+    di->handle = FindFirstFileA(dirname, &file);
+
+    if (di->handle == INVALID_HANDLE_VALUE) {
+      free(di);
+      di = NULL;
+    } else {
+      _fill_current_item(&di->current, &file);
+    }
+  }
+#else
+  if ((di->handle = opendir(di->path))) {
     dnext(di);
   } else {
     free(di);
     di = NULL;
   }
+#endif
   
   return di;
 }
@@ -106,7 +106,11 @@ DirectoryIterator *dopen(const char *dirname)
 ////////////////////////////////////////////////////////////////////////////////
 void dclose(DirectoryIterator *iterator)
 {
+#ifdef WIN
+  FindClose(iterator->handle);
+#else
   closedir(iterator->handle);
+#endif
 
   free(iterator);
 }
@@ -117,6 +121,17 @@ DirectoryItem *dnext(DirectoryIterator *iterator)
 {
   DirectoryItem *current = &iterator->current;
 
+#ifdef WIN
+  {
+    WIN32_FIND_DATAA file;
+
+    if (FindNextFileA(iterator->handle, &file)) {
+      _fill_current_item(current, &file);
+    } else {
+      current->type = DIRTYPE_DONE;
+    }
+  }
+#else
   struct dirent *d;
 
   while ((d = readdir(iterator->handle))) {
@@ -138,6 +153,7 @@ DirectoryItem *dnext(DirectoryIterator *iterator)
   if (!d) {
     current->type = DIRTYPE_DONE;
   }
+#endif
 
   return current;
 }
@@ -174,5 +190,3 @@ int dexists(const char *dirname)
 
   return exists;
 }
-
-#endif

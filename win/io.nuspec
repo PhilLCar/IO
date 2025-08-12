@@ -1,23 +1,24 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Diagnostic</id>
-	<version> 2025.3.25.1604 </version>
+    <id>IO</id>
+	<version> 2025.8.11.2050 </version>
     <authors>Philippe Caron</authors>
-    <description>Diagnostic package allows to detect memory leaks when included at compile-time</description>
+    <description>IO package serves as the main OSAL package between Linux and Windows</description>
 	<readme>docs\README.md</readme>
   
 	<dependencies>
-	  <group targetFramework="native0.0">
+	  <group targetFramework="native">
 	  </group>
 	</dependencies>
   </metadata>
   
   <files>
-    <file src="..\bin\x64\Debug\Diagnostic.dll" target="lib\native\diagnostic.dll" />
-    <file src="..\bin\x64\Debug\Diagnostic.lib" target="lib\native\diagnostic.lib" />
-    <file src="..\bin\x64\Debug\Diagnostic.pdb" target="lib\native\diagnostic.pdb" />
-    <file src="..\win\diagnostic.targets"       target="build\native\diagnostic.targets" />
-    <file src="..\README.md"                    target="docs\README.md" />
+    <file src="..\bin\x64\Debug\IO.dll" target="lib\native\io.dll" />
+    <file src="..\bin\x64\Debug\IO.lib" target="lib\native\io.lib" />
+    <file src="..\bin\x64\Debug\IO.pdb" target="lib\native\io.pdb" />
+    <file src="..\win\io.targets"       target="build\native\io.targets" />
+    <file src="..\win\io.props"         target="build\native\io.props" />
+    <file src="..\README.md"            target="docs\README.md" />
   </files>
 </package>

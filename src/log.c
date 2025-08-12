@@ -1,5 +1,9 @@
 #include <log.h>
 
+#ifdef WIN
+#define fprintf fprintf_s
+#endif
+
 void _debug(const char *filename, int line, const char *message)
 {
   printf(FONT_BOLD TEXT_CYAN "debug:" FONT_RESET FONT_BOLD " %s(%d): " FONT_RESET "%s\n", filename, line, message);
@@ -33,7 +37,11 @@ void loglvl(const char *filename, int line, int lvl, const char *message, ...)
 
   va_list argptr;
   va_start(argptr, message);
+#ifdef WIN
+  vsnprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, argptr);
+#else
   vsnprintf(buffer, sizeof(buffer), message, argptr);
+#endif
   va_end(argptr);
 
   switch (lvl) {

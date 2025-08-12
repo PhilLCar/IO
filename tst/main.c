@@ -1,5 +1,6 @@
 #include <log.h>
 #include <directory.h>
+#include <path.h>
 
 // TODO: to abs and to rel path methods
 // TODO: update all other packages with these changes (especially except)

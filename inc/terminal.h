@@ -11,6 +11,8 @@
 #include <unistd.h>
 #endif
 
+#include "export.h"
+
 #define TEXT_RED     "\x1b[31m"
 #define TEXT_GREEN   "\x1b[32m"
 #define TEXT_YELLOW  "\x1b[33m"
@@ -152,14 +154,14 @@ typedef struct coordinate {
 } Coordinate;
 
 
-Coordinate gettermsize();
-void       clearterm();
-void       placecursor(int x, int y);
-void       movecursor(int x, int y);
-void       pushcursor();
-void       popcursor();
-void       ljust(const char *str, char *buffer, int size);
-void       rjust(const char *str, char *buffer, int size);
-void       cjust(const char *str, char *buffer, int size);
+PUBLIC Coordinate gettermsize();
+PUBLIC void       clearterm();
+PUBLIC void       placecursor(int x, int y);
+PUBLIC void       movecursor(int x, int y);
+PUBLIC void       pushcursor();
+PUBLIC void       popcursor();
+PUBLIC void       ljust(const char *str, char *buffer, int size);
+PUBLIC void       rjust(const char *str, char *buffer, int size);
+PUBLIC void       cjust(const char *str, char *buffer, int size);
 
 #endif
