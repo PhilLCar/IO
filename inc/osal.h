@@ -3,9 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <log.h>
 #include <stdlib.h>
-#include <diagnostic.h>
 
 #ifdef WIN
 // Windows
@@ -20,6 +18,8 @@
 #define PATH_MAX_LENGTH 4096
 #endif
 
+#include <diagnostic.h>
+#include "log.h"
 #include "export.h"
 
 static inline int max(int a, int b) {

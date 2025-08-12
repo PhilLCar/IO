@@ -1,6 +1,7 @@
 #ifndef PATH_H
 #define PATH_H
 
+#include <diagnostic.h>
 #include "osal.h"
 #include "export.h"
 

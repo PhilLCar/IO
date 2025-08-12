@@ -1,10 +1,12 @@
 #ifndef LOG_H
 #define LOG_H
 
+// C
 #include <terminal.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
+// CUT
 #include "export.h"
 
 #ifdef WIN

@@ -277,6 +277,8 @@ int pcombine(const char *path, const char *file, int size, char buffer[size])
   
   memcpy(psplit + plen, fsplit + ignore, (flen + 1 - ignore) * sizeof(const char*));
 
+  if (ignore) 
+    free(fsplit[0]);
   free(fsplit);
 
   return _pclean(psplit, size, buffer);
