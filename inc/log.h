@@ -5,6 +5,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "export.h"
+
+#ifdef WIN
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+#endif
+
 #define LOG_DEBUG 0
 #define LOG_INFO  1
 #define LOG_WARN  2
@@ -46,6 +52,6 @@
 // Fatal errors are always included
 #define FATAL(MESSAGE, ...) LOG(LOG_FATAL, MESSAGE __VA_OPT__(,) __VA_ARGS__)
 
-void loglvl(const char *filename, int line, int lvl, const char *message, ...);
+PUBLIC void loglvl(const char *filename, int line, int lvl, const char *message, ...);
 
 #endif

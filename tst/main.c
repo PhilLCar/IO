@@ -1,5 +1,6 @@
 #include <log.h>
 #include <directory.h>
+#include <path.h>
 
 int main(void)
 {

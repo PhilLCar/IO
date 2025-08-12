@@ -16,6 +16,7 @@
 
 #include <diagnostic.h>
 
+#include "export.h"
 #include "osal.h"
 #include "file.h"
 #include "path.h"
@@ -39,12 +40,12 @@ typedef struct dir_iterator {
   DirectoryItem  current;
 } DirectoryIterator;
 
-DirectoryIterator *dopen(const char *dirname);
-void               dclose(DirectoryIterator *iterator);
-DirectoryItem     *dnext(DirectoryIterator *iterator);
-int                ddone(DirectoryIterator *iterator);
-void               dclose(DirectoryIterator *iterator);
-void               dname(const DirectoryIterator *iterator, int size, char buffer[size]);
-int                dexists(const char *dirname);
+PUBLIC DirectoryIterator *dopen(const char *dirname);
+PUBLIC void               dclose(DirectoryIterator *iterator);
+PUBLIC DirectoryItem     *dnext(DirectoryIterator *iterator);
+PUBLIC int                ddone(DirectoryIterator *iterator);
+PUBLIC void               dclose(DirectoryIterator *iterator);
+PUBLIC void               dname(const DirectoryIterator *iterator, int size, char buffer[size]);
+PUBLIC int                dexists(const char *dirname);
 
 #endif

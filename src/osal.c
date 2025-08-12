@@ -1,5 +1,10 @@
 #include <osal.h>
 
+#ifdef WIN
+#define popen _popen
+#define pclose _pclose
+#endif
+
 char *_command_buffer(const char *command, int argc, const char *argv[argc]) {
   int start = strlen(command);
 
@@ -73,6 +78,50 @@ void *runargs(const char *command, int argc, const char *argv[argc])
 }
 
 #ifdef WIN
+
+void newdir(const char *dirname)
+{
+  sysargs("mkdir", 2, (const char*[]){dirname});
+}
+
+void deldir(const char *dirname)
+{
+  sysargs("rmdir", 2, (const char*[]){"/s", "/q", dirname});
+}
+
+void newfile(const char *filename)
+{
+  sysargs("type", 1, (const char*[]){"nul", ">", filename});
+}
+
+void delfile(const char *filename)
+{
+  sysargs("del", 1, (const char*[]){filename});
+}
+
+long lastmod(const char *filename)
+{
+  // powershell -NoProfile -Command "[DateTimeOffset]::new((Get-Item file.txt).LastWriteTimeUtc).ToUnixTimeSeconds()"
+
+  /*char *result = runargs("state", 3, (const char *[]){"-c", "%%Y", filename});
+  long  value  = atol(result);
+
+  free(result);*/
+
+  return 0;
+}
+
+void workdir(int size, char buffer[size]) {
+  char *result = run("cd");
+
+  if (strlen(result) > size - 1) {
+    FATAL("Buffer overflow!");
+  } else {
+    strcpy(buffer, result);
+  }
+
+  free(result);
+}
 
 #else
 

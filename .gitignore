@@ -7,3 +7,8 @@ bin
 .vscode
 .vs
 .cut
+
+# NuGet
+win/NuGet.config
+win/packages
+win/*.nupkg
