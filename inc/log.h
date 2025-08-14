@@ -2,11 +2,11 @@
 #define LOG_H
 
 // C
-#include <terminal.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
 // CUT
+#include <terminal.h>
 #include "export.h"
 
 #ifdef WIN
