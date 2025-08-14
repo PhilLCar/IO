@@ -1,10 +1,5 @@
 #include <osal.h>
 
-#ifdef WIN
-#define popen _popen
-#define pclose _pclose
-#endif
-
 char *_command_buffer(const char *command, int argc, const char *argv[argc]) {
   int start = strlen(command);
 

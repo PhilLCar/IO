@@ -1,8 +1,12 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
+// C
 #include <stdio.h>
 #include <string.h>
+
+// CUT
+#include "export.h"
 
 #ifdef WIN
 #include <windows.h>
@@ -10,8 +14,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #endif
-
-#include "export.h"
 
 #define TEXT_RED     "\x1b[31m"
 #define TEXT_GREEN   "\x1b[32m"

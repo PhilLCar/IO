@@ -4,7 +4,11 @@
 
 int main(void)
 {
+#ifdef WIN
+  const char *path = "C:\\This\\Is\\A\\Test\\Path.txt";
+#else
   const char *path = "file:///This/Is/A/Test/Path.txt";
+#endif
 
   char buffer[4096];
 
@@ -33,17 +37,29 @@ int main(void)
 
   pprotocol(path, sizeof(buffer), buffer);
 
+#ifdef WIN
+  printf("Drive: %s\n", buffer);
+#else
   printf("Protocol: %s\n", buffer);
+#endif
 
   pclean(path, sizeof(buffer), buffer);
 
   printf("Cleaned path: %s\n", buffer);
 
+#ifdef WIN
+  pcombine("test\\path\\", "\\rest\\of\\path.txt", sizeof(buffer), buffer);
+#else
   pcombine("test/path/", "/rest/of/path.txt", sizeof(buffer), buffer);
+#endif
 
   printf("Combined path: %s\n", buffer);
 
+#ifdef WIN
+  pabs("..\\.\\Collection\\wrong\\..\\right\\ok", sizeof(buffer), buffer);
+#else
   pabs(".././Collection/wrong/../right/ok", sizeof(buffer), buffer);
+#endif
 
   printf("To absolute: %s\n", buffer);
 

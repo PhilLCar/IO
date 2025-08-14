@@ -1,9 +1,17 @@
 #ifndef DIRECTORY_H
 #define DIRECTORY_H
 
+// C
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// CUT
+#include <diagnostic.h>
+#include "export.h"
+#include "osal.h"
+#include "file.h"
+#include "path.h"
 
 #ifdef WIN
 #include <windows.h>
@@ -14,12 +22,6 @@
 #include <dirent.h>
 #endif
 
-#include <diagnostic.h>
-
-#include "export.h"
-#include "osal.h"
-#include "file.h"
-#include "path.h"
 
 typedef enum dir_type {
   DIRTYPE_FILE,

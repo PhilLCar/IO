@@ -10,7 +10,7 @@
 #include "export.h"
 
 #ifdef WIN
-#pragma clang diagnostic ignored "-Wmacro-redefined"
+#undef ERROR
 #endif
 
 #define LOG_DEBUG 0

@@ -176,14 +176,17 @@ int pisabs(const char *path)
   return _pisabs(path + prot);
 }
 
+// In case of a URI this method will identify the protocol
+// In case of a Windows path, it will find the drive letter
 ////////////////////////////////////////////////////////////////////////////////
 int pprotocol(const char *path, int size, char buffer[size])
 {
-  int plen = _plen(path, '/');
+  int plen    = _plen(path, PATH_MARKER);
+  int windows = PATH_MARKER == '\\';
 
   for (int i = 0; i < plen; i++) {
-    if (path[i] == ':' && path[i + 1] == '/' && path[i + 2] == '/') {
-      i += 3;
+    if (path[i] == ':' && (windows || (path[i + 1] == '/' && path[i + 2] == '/'))) {
+      i += windows ? 1 : 3;
 
       if (buffer) {
         if (i > size) {

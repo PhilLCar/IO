@@ -104,14 +104,15 @@ int fnamext(const char *filename, int size, char buffer[size])
 ////////////////////////////////////////////////////////////////////////////////
 int fexists(const char *filename, FilePermission permission) {
    WIN32_FIND_DATAA file;
-   HANDLE handle = FindFirstFileA(filename, &file) ;
-   int found = handle != INVALID_HANDLE_VALUE;
-   if(found) 
+   HANDLE handle = FindFirstFileA(filename, &file);
+   int    found  = handle != INVALID_HANDLE_VALUE;
+
+   if (found) 
    {
        FindClose(handle);
    }
+
    // For now ignore permission on windows
-   permission;
    return found;
 }
 
