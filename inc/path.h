@@ -7,6 +7,7 @@
 
 PUBLIC int pisabs(const char *path);
 PUBLIC int pprotocol(const char *path, int size, char buffer[size]);
+PUBLIC int pdrive(const char *path, int size, char buffer[size]);
 
 PUBLIC int pclean(const char *path, int size, char buffer[size]);
 PUBLIC int prel  (const char *path, int size, char buffer[size]);

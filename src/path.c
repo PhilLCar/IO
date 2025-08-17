@@ -6,196 +6,46 @@
 #define MAX_MARKERS 1
 #endif
 
-/******************************************************************************/
-int _pisabs(const char *path)
-{
-  for (int i = 0; i < MAX_MARKERS; i++) {
-    if (path[i] != PATH_MARKER) {
-      return i;
-    }
-  }
-  
-  return MAX_MARKERS;
-}
+enum _step {
+  _PATH_PROTOCOL,
+  _PATH_DRIVE,
+  _PATH_ABSOLUTE,
+  _PATH_COMPONENTS
+};
 
+struct _path {
+  char   marker;
+  char  *protocol;
+  char  *drive;
+  int    absolute;
+  int    size;
+  char **components;
+};
 
 /******************************************************************************/
 int _plen(const char *buffer, char marker)
 {
-  int i = 0;
+  int i;
 
-  while (buffer[i] != marker && buffer[i] != 0) i++;
+  for (i = 0; buffer[i] && buffer[i] != marker; i++);
 
   return i;
 }
 
 /******************************************************************************/
-char **_psplit(const char *buffer)
+int _pprotocol(struct _path *path, const char *buffer)
 {
-  char   marker = PATH_MARKER;
-  int    prot   = pprotocol(buffer, 0, NULL);
-  int    abs    = _pisabs(buffer + prot);
-  int    size   = 1 + (prot > 0) + (abs > 0);
-  char **split  = malloc(size * sizeof(const char*));
-
-  // Special initialization if protocol is present (will work with window's drive letter as well)
-  if (prot) {
-    char *protocol = malloc(prot + 1);
-
-    memcpy(protocol, buffer, prot);
-    buffer += prot;
-
-    protocol[prot] = 0;
-    split[0]       = protocol;
-    marker         = '/';
-  }
-
-  // Special initialization if absolute path indicator
-  if (abs) {
-    char *root = malloc(abs + 1);
-
-    memcpy(root, buffer, abs);
-    buffer += abs;
-
-    root[abs]         = 0;
-    split[(prot > 0)] = root;
-  }
-
-  split[size - 1] = NULL;
-
-  for (int i = size - 1, len; buffer[0]; i++) {
-    while (1) {
-      len = _plen(buffer, marker);
-
-      if (!len && buffer[0]) {
-        buffer++;
-      } else break;
-    }
-
-    if (len) {
-      split = realloc(split, (i + 2) * sizeof(const char*));
-
-      if (!split) {
-        FATAL("Ran out of memory!");
-      }
-
-      split[i]     = malloc(len + 1);
-      split[i + 1] = NULL;
-
-      memcpy(split[i], buffer, len);
-      
-      split[i][len] = 0;
-
-      buffer += len;
-    }
-  }
-
-  return split;
-}
-
-/******************************************************************************/
-void _pfree(char **split)
-{
-  for (int i = 0; split[i]; i++) {
-    free(split[i]);
-  }
-
-  free(split);
-}
-
-/******************************************************************************/
-int _pclean(char **split, int size, char buffer[size]) {
-  int marker = PATH_MARKER;
-  int copied = 0;
-
-  // First-pass: reduce
-  for (int i = 0; split[i]; i++) {
-    if (i > 0 && !strcmp(split[i], ".")) {
-      free(split[i]);
-      split[i] = NULL;
-
-      copied++;
-    } else if (!strcmp(split[i], "..") && i - copied - 1 > 0 &&  split[i - copied - 1][0] != '.') {
-      free(split[i - copied - 1]);
-      split[i - copied - 1] = NULL;
-      free(split[i]);
-      split[i] = NULL;
-
-      copied += 2;
-    } else {
-      split[i - copied] = split[i];
-      if (copied) split[i] = NULL;
-    }
-  }
-
-  copied = 0;
-
-  // Second-pass: print
-  for (int i = 0; split[i]; i++) {
-    if (!i) {
-      char *prot = strchr(split[0], ':');
-
-      if (prot) marker = prot[1];
-    }
-
-    int len = strlen(split[i]);
-    int mrk = split[i][len - 1] == marker;
-
-    if (copied + len + mrk > size) {
-      FATAL("Buffer overflow!");
-    }
-
-    strcpy(buffer + copied, split[i]);
-    copied += len;
-
-    if (!mrk && split[i + 1]) {
-      buffer[copied++] = marker;
-    }
-  }
-
-  _pfree(split);
-
-  return copied;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-int pisabs(const char *path)
-{
-  int prot = pprotocol(path, 0, NULL);
-
-  #ifdef WIN
-    if (prot == 0) {
-      int plen = _plen(path, PATH_MARKER);
-
-      for (int i = 0; i < plen; i++) {
-        if (path[i] == ':') return 1;
-      }
-    }
-  #endif
-
-  return _pisabs(path + prot);
-}
-
-// In case of a URI this method will identify the protocol
-// In case of a Windows path, it will find the drive letter
-////////////////////////////////////////////////////////////////////////////////
-int pprotocol(const char *path, int size, char buffer[size])
-{
-  int plen    = _plen(path, PATH_MARKER);
-  int windows = PATH_MARKER == '\\';
+  // URI always use forward slash
+  int plen = _plen(buffer, '/');
 
   for (int i = 0; i < plen; i++) {
-    if (path[i] == ':' && (windows || (path[i + 1] == '/' && path[i + 2] == '/'))) {
-      i += windows ? 1 : 3;
+    if (buffer[i] == ':' && buffer[i + 1] == '/' && buffer[i + 2] == '/') {
+      i += 3;
 
-      if (buffer) {
-        if (i > size) {
-          FATAL("Buffer overflow!");
-        }
+      path->marker = '/';
+      path->protocol = malloc((i + 1) * sizeof(char));
 
-        memcpy(buffer, path, i);
-        buffer[i] = 0;
-      }
+      strncpy(path->protocol, buffer, i);
 
       return i;
     }
@@ -204,85 +54,372 @@ int pprotocol(const char *path, int size, char buffer[size])
   return 0;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-int pclean(const char *path, int size, char buffer[size])
+/******************************************************************************/
+int _pdrive(struct _path *path, const char *buffer)
 {
-  return _pclean(_psplit(path), size, buffer);
-}
+  int plen = _plen(buffer, path->marker);
 
-////////////////////////////////////////////////////////////////////////////////
-int prel(const char *path, int size, char buffer[size])
-{
-  char fbuf[PATH_MAX_LENGTH];
-
-  workdir(sizeof(fbuf), fbuf);
-
-  char **psplit = _psplit(path);
-  char **fsplit = _psplit(fbuf);
-
-  int plen = 0, flen = 0;
-
-  for (; psplit[plen]; plen++);
-  for (; fsplit[flen]; flen++);
-
-  int same = 0;
-
-  for (; psplit[same] && fsplit[same] && !strcmp(psplit[same], fsplit[same]); same++);
-
-  int    nsize   = plen + flen - (same << 1) + (same == flen);
-  char **nsplit = malloc((nsize + 1) * sizeof(const char*));
-
-  nsplit[nsize] = NULL;
-
-  if (flen == same) {
-    nsplit[0] = malloc(2);
-    sprintf(nsplit[0], "%s", ".");
-  } else for (int i = 0; i < flen - same; i++) {
-    nsplit[i] = malloc(3);
-    sprintf(nsplit[i], "%s", "..");
+  // Windows network drive
+  if (plen == 0 && path->marker == '\\' && buffer[0] == '\\' && buffer[1] == '\\') {
+    plen = _plen(buffer + 2, '\\');
+  } else if (plen && buffer[plen - 1] != ':') {
+    plen = 0;
   }
 
-  for (int i = same; i < plen; i++) {
-    nsplit[nsize - plen + i] = psplit[i];
-    psplit[i] = NULL;
+  if (plen) {
+    path->drive = malloc((plen + 1) * sizeof(char));
+
+    strncpy(path->drive, buffer, plen);
   }
 
-  _pfree(psplit);
-  _pfree(fsplit);
+  return plen;
+}
 
-  return _pclean(nsplit, size, buffer);
+/******************************************************************************/
+void _pinit(struct _path *path)
+{
+  memset(path, 0, sizeof(struct _path));
+
+  path->marker = PATH_MARKER;
+}
+
+/******************************************************************************/
+void _pbuild(struct _path *path, const char *buffer, enum _step step)
+{
+  int index = 0;
+  
+  _pinit(path);
+
+  index += _pprotocol(path, buffer);
+
+  if (step == _PATH_PROTOCOL) return;
+  
+  index += _pdrive(path, buffer + index);
+
+  if (step == _PATH_DRIVE) return;
+
+  path->absolute = buffer[index] == path->marker;
+
+  if (step == _PATH_ABSOLUTE) return;
+
+  {
+    int cap = 2;
+
+    path->components = (char**)malloc(cap * sizeof(char*));
+    path->size       = 0;
+
+    for (int i = index, s = index - 1; ; i++) {
+      if (!buffer[i] || buffer[i] == path->marker) {
+        int len = i - ++s;
+
+        if (len) {
+          path->components[path->size] = malloc((len + 1) * sizeof(char));
+          
+          if (!path->components[path->size]) {
+            FATAL("Memory allocation error!");
+          }
+
+          strncpy(path->components[path->size++], &buffer[s], len);
+
+          if (path->size == cap && buffer[i]) {
+            path->components = realloc(path->components, (cap <<= 1) * sizeof(char*));
+
+            if (!path->components) {
+              FATAL("Memory reallocation error!");
+            }
+          }
+        }
+
+        if (!buffer[i]) break;
+
+        s = i;
+      }
+    }
+  }
+}
+
+/******************************************************************************/
+void _pfree(struct _path *path)
+{
+  if (path->protocol) free(path->protocol);
+  if (path->drive)    free(path->drive);
+
+  for (int i = 0; i < path->size; i++) {
+    if (path->components[i]) free(path->components[i]);
+  }
+
+  if (path->components) free(path->components);
+}
+
+/******************************************************************************/
+int _pclean(struct _path *path, int size, char destination[size]) {
+  int copied  = 0;
+  int nothing = 1;
+
+  if (path->protocol) {
+    int len = strlen(path->protocol);
+
+    if ((copied + len) >= size) {
+      FATAL("Buffer overflow!");
+    }
+
+    strncpy(&destination[copied], path->protocol, len);
+
+    copied += len;
+  }
+
+  if (path->drive) {
+    int len = strlen(path->drive);
+
+    if ((copied + len) >= size) {
+      FATAL("Buffer overflow!");
+    }
+
+    strncpy(&destination[copied], path->drive, len);
+
+    copied += len;
+  }
+
+  if (path->absolute) {
+    if (copied + 2 >= size) {
+      FATAL("Buffer overflow!");
+    }
+
+    destination[copied++] = path->marker;
+    destination[copied]   = 0;
+  }
+
+  for (int i = 0; i < path->size; i++) {
+    if (!strcmp(".", path->components[i])) {
+      free(path->components[i]);
+      path->components[i] = NULL;
+    } else if (!strcmp("..", path->components[i])) {
+      for (int j = i - 1; j >= 0; j--) {
+        if (path->components[j] && strcmp("..", path->components[j])) {
+          // only free if parent is present;
+          free(path->components[i]);
+          free(path->components[j]);
+          path->components[i] = NULL;
+          path->components[j] = NULL;
+          break;
+        }
+      }
+    }
+  }
+
+  for (int i = 0, j = 0; i < path->size; i++) {
+    if (path->components[i]) {
+      int len = strlen(path->components[i]);
+
+      if ((copied + len + j) >= size) {
+        FATAL("Buffer overflow!");
+      }
+
+      if (j) {
+        destination[copied] = path->marker;
+      }
+
+      strncpy(&destination[copied + j], path->components[i], len);
+
+      copied += len + j;
+      j       = 1;
+      nothing = 0;
+    }
+  }
+
+  if (nothing) {
+    if (copied + 2 >= size) {
+      FATAL("Buffer overflow!");
+    }
+
+    destination[copied++] = '.';
+    destination[copied]   = 0;
+  }
+
+  _pfree(path);
+
+  return copied;
+}
+
+/******************************************************************************/
+int _pcombine(struct _path *fpath, struct _path *spath, int size, char destination[size])
+{
+  fpath->components = realloc(fpath->components, (fpath->size + spath->size) * sizeof(char*));
+
+  if (!fpath->components) {
+    FATAL("Memory reallocation error!");
+  }
+
+  for (int i = fpath->size, j = 0; i < fpath->size + spath->size; i++, j++) {
+    fpath->components[i] = spath->components[j];
+    spath->components[j] = NULL;
+  }
+
+  fpath->size += spath->size;
+
+  _pfree(spath);
+
+  return _pclean(fpath, size, destination);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int pabs(const char *path, int size, char buffer[size])
+int pisabs(const char *buffer)
 {
-  char pbuf[PATH_MAX_LENGTH];
-  
-  workdir(sizeof(pbuf), pbuf);
+  struct _path path;
 
-  return pcombine(pbuf, path, size, buffer);
+  _pbuild(&path, buffer, _PATH_ABSOLUTE);
+
+  _pfree(&path);
+
+  return path.absolute;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int pcombine(const char *path, const char *file, int size, char buffer[size])
+int pprotocol(const char *buffer, int size, char destination[size])
 {
-  char **psplit = _psplit(path);
-  char **fsplit = _psplit(file);
+  int          len;
+  struct _path path;
 
-  int plen = 0, flen = 0;
+  _pbuild(&path, buffer, _PATH_PROTOCOL);
 
-  for (; psplit[plen]; plen++);
-  for (; fsplit[flen]; flen++);
+  len = path.protocol && strlen(path.protocol);
 
-  int ignore = flen > 0 && fsplit[0][0] == PATH_MARKER;
+  if (destination) {
+    if (len + 1 < size) {
+      memcpy(destination, path.protocol, len);
+      destination[len + 1] = 0;
+    } else {
+      FATAL("Buffer overflow!");
+    }
+  }
 
-  psplit = realloc(psplit, (plen + flen + 1 - ignore) * sizeof(const char*));
-  
-  memcpy(psplit + plen, fsplit + ignore, (flen + 1 - ignore) * sizeof(const char*));
+  _pfree(&path);
 
-  if (ignore) 
-    free(fsplit[0]);
-  free(fsplit);
+  return len;
+}
 
-  return _pclean(psplit, size, buffer);
+////////////////////////////////////////////////////////////////////////////////
+int pdrive(const char *buffer, int size, char destination[size])
+{
+  int          len;
+  struct _path path;
+
+  _pbuild(&path, buffer, _PATH_DRIVE);
+
+  len = path.drive && strlen(path.drive);
+
+  if (destination) {
+    if (len + 1 < size) {
+      memcpy(destination, path.drive, len);
+      destination[len + 1] = 0;
+    } else {
+      FATAL("Buffer overflow!");
+    }
+  }
+
+  _pfree(&path);
+
+  return len;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int pclean(const char *buffer, int size, char destination[size])
+{
+  struct _path path;
+
+  _pbuild(&path, buffer, _PATH_COMPONENTS);
+
+  return _pclean(&path, size, destination);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int prel(const char *buffer, int size, char destination[size])
+{
+  struct _path path;
+
+  _pbuild(&path, buffer, _PATH_COMPONENTS);
+
+  if (!path.absolute) {
+    return _pclean(&path, size, destination);
+  } else {
+    char         wd[PATH_MAX_LENGTH];
+    struct _path abs;
+    int          match = 0;
+
+    workdir(sizeof(wd), wd);
+    _pbuild(&abs, wd, _PATH_COMPONENTS);
+    
+    if (abs.drive && path.drive && strcmp(abs.drive, path.drive)) {
+      _pfree(&abs);
+
+      return _pclean(&path, size, destination);
+    }
+
+    for (int i = 0, m = 1; i < abs.size; i++) {
+      if (m && !strcmp(path.components[i], abs.components[i])) {
+        free(abs.components[i]);
+        free(path.components[i]);
+        abs.components[i]  = NULL;
+        path.components[i] = NULL;
+      } else {
+        if (m) {
+          match = i;
+          m = 0;
+        }
+
+        free(abs.components[i]);
+        abs.components[i] = malloc(3 * sizeof(char));
+        strcpy(abs.components[i], "..");
+      }
+    }
+
+    for (int i = 0; i < abs.size - match; i++) {
+      abs.components[i] = abs.components[i + match];
+    }
+
+    for (int i = 0; i < path.size - match; i++) {
+      path.components[i] = path.components[i + match];
+    }
+
+    abs.size     -= match;
+    path.size    -= match;
+    abs.absolute  = 0;
+
+    free(abs.drive);
+    abs.drive = NULL;
+
+    return _pcombine(&abs, &path, size, destination);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int pabs(const char *buffer, int size, char destination[size])
+{
+  struct _path path;
+
+  _pbuild(&path, buffer, _PATH_COMPONENTS);
+
+  if (path.absolute) {
+    return _pclean(&path, size, destination);
+  } else {
+    char         wd[PATH_MAX_LENGTH];
+    struct _path rel;
+
+    workdir(sizeof(wd), wd);
+    _pbuild(&rel, wd, _PATH_COMPONENTS);
+
+    return _pcombine(&rel, &path, size, destination);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int pcombine(const char *first, const char *second, int size, char destination[size])
+{
+  struct _path fpath;
+  struct _path spath;
+
+  _pbuild(&fpath, first,  _PATH_COMPONENTS);
+  _pbuild(&spath, second, _PATH_COMPONENTS);
+
+  return _pcombine(&fpath, &spath, size, destination);
 }

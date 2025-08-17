@@ -25,7 +25,7 @@
 
 #define LOG_MSG_MAX 8192
 
-#define LOG(LEVEL, MESSAGE, ...) loglvl(__FILE__, __LINE__, LEVEL, MESSAGE __VA_OPT__(,) __VA_ARGS__);
+#define LOG(LEVEL, MESSAGE, ...) loglvl(__FILE__, __LINE__, LEVEL, MESSAGE __VA_OPT__(,) __VA_ARGS__)
 
 #if LOG_LEVEL == LOG_DEBUG
 #define DEBUG(MESSAGE, ...) LOG(LOG_DEBUG, MESSAGE __VA_OPT__(,) __VA_ARGS__)

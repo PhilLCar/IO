@@ -22,6 +22,7 @@
 #define pclose _pclose
 #define memcpy(D, S, L) memcpy_s(D, L, S, L)
 #define strcpy(D, S)    strcpy_s(D, strlen(S) + 1, S)
+#define strncpy(D, S, L) strncpy_s(D, L + 1, S, L)
 #else
 // Linux
 #define PATH_MARKER '/'
