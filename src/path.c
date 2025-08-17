@@ -23,6 +23,15 @@ struct _path {
 };
 
 /******************************************************************************/
+int _strncpy(char *dst, const char *src, int n)
+{
+  memcpy(dst, src, n);
+  dst[n] = 0;
+
+  return n + 1;
+}
+
+/******************************************************************************/
 int _plen(const char *buffer, char marker)
 {
   int i;
@@ -45,7 +54,7 @@ int _pprotocol(struct _path *path, const char *buffer)
       path->marker = '/';
       path->protocol = malloc((i + 1) * sizeof(char));
 
-      strncpy(path->protocol, buffer, i);
+      _strncpy(path->protocol, buffer, i);
 
       return i;
     }
@@ -69,7 +78,7 @@ int _pdrive(struct _path *path, const char *buffer)
   if (plen) {
     path->drive = malloc((plen + 1) * sizeof(char));
 
-    strncpy(path->drive, buffer, plen);
+    _strncpy(path->drive, buffer, plen);
   }
 
   return plen;
@@ -119,7 +128,7 @@ void _pbuild(struct _path *path, const char *buffer, enum _step step)
             FATAL("Memory allocation error!");
           }
 
-          strncpy(path->components[path->size++], &buffer[s], len);
+          _strncpy(path->components[path->size++], &buffer[s], len);
 
           if (path->size == cap && buffer[i]) {
             path->components = realloc(path->components, (cap <<= 1) * sizeof(char*));
@@ -163,7 +172,7 @@ int _pclean(struct _path *path, int size, char destination[size]) {
       FATAL("Buffer overflow!");
     }
 
-    strncpy(&destination[copied], path->protocol, len);
+    _strncpy(&destination[copied], path->protocol, len);
 
     copied += len;
   }
@@ -175,7 +184,7 @@ int _pclean(struct _path *path, int size, char destination[size]) {
       FATAL("Buffer overflow!");
     }
 
-    strncpy(&destination[copied], path->drive, len);
+    _strncpy(&destination[copied], path->drive, len);
 
     copied += len;
   }
@@ -219,7 +228,7 @@ int _pclean(struct _path *path, int size, char destination[size]) {
         destination[copied] = path->marker;
       }
 
-      strncpy(&destination[copied + j], path->components[i], len);
+      _strncpy(&destination[copied + j], path->components[i], len);
 
       copied += len + j;
       j       = 1;
@@ -282,12 +291,11 @@ int pprotocol(const char *buffer, int size, char destination[size])
 
   _pbuild(&path, buffer, _PATH_PROTOCOL);
 
-  len = path.protocol && strlen(path.protocol);
+  len = path.protocol ? strlen(path.protocol) : 0;
 
   if (destination) {
     if (len + 1 < size) {
-      memcpy(destination, path.protocol, len);
-      destination[len + 1] = 0;
+      _strncpy(destination, path.protocol, len);
     } else {
       FATAL("Buffer overflow!");
     }
@@ -306,12 +314,11 @@ int pdrive(const char *buffer, int size, char destination[size])
 
   _pbuild(&path, buffer, _PATH_DRIVE);
 
-  len = path.drive && strlen(path.drive);
+  len = path.drive ? strlen(path.drive) : 0;
 
   if (destination) {
     if (len + 1 < size) {
-      memcpy(destination, path.drive, len);
-      destination[len + 1] = 0;
+      _strncpy(destination, path.drive, len);
     } else {
       FATAL("Buffer overflow!");
     }
