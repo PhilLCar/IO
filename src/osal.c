@@ -1,5 +1,6 @@
 #include <osal.h>
 
+/******************************************************************************/
 char *_command_buffer(const char *command, int argc, const char *argv[argc]) {
   int start = strlen(command);
 
@@ -26,6 +27,16 @@ char *_command_buffer(const char *command, int argc, const char *argv[argc]) {
   return cmd;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+int nstrcpy(char *dst, const char *src, unsigned int n)
+{
+  memcpy(dst, src, n);
+  dst[n] = 0;
+
+  return n + 1;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void sysargs(const char *command, int argc, const char *argv[argc])
 {
   char *buffer = _command_buffer(command, argc, argv);
@@ -34,6 +45,7 @@ void sysargs(const char *command, int argc, const char *argv[argc])
   free(buffer);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void* run(const char *command)
 {
   size_t  init   = 4096;
@@ -62,6 +74,7 @@ void* run(const char *command)
   return text;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void *runargs(const char *command, int argc, const char *argv[argc])
 {
   char *buffer = _command_buffer(command, argc, argv);
@@ -74,26 +87,31 @@ void *runargs(const char *command, int argc, const char *argv[argc])
 
 #ifdef WIN
 
+////////////////////////////////////////////////////////////////////////////////
 void newdir(const char *dirname)
 {
   sysargs("mkdir", 2, (const char*[]){dirname});
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void deldir(const char *dirname)
 {
   sysargs("rmdir", 2, (const char*[]){"/s", "/q", dirname});
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void newfile(const char *filename)
 {
   sysargs("type", 1, (const char*[]){"nul", ">", filename});
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void delfile(const char *filename)
 {
   sysargs("del", 1, (const char*[]){filename});
 }
 
+////////////////////////////////////////////////////////////////////////////////
 long lastmod(const char *filename)
 {
   // powershell -NoProfile -Command "[DateTimeOffset]::new((Get-Item file.txt).LastWriteTimeUtc).ToUnixTimeSeconds()"
@@ -106,6 +124,7 @@ long lastmod(const char *filename)
   return 0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void workdir(int size, char buffer[size]) {
   char *result = run("cd");
 
@@ -120,26 +139,31 @@ void workdir(int size, char buffer[size]) {
 
 #else
 
+////////////////////////////////////////////////////////////////////////////////
 void newdir(const char *dirname)
 {
   sysargs("mkdir", 2, (const char*[]){"-p", dirname});
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void deldir(const char *dirname)
 {
   sysargs("rmdir", 2, (const char*[]){"-p", dirname});
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void newfile(const char *filename)
 {
   sysargs("touch", 1, (const char*[]){filename});
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void delfile(const char *filename)
 {
   sysargs("rm", 1, (const char*[]){filename});
 }
 
+////////////////////////////////////////////////////////////////////////////////
 long lastmod(const char *filename)
 {
   char *result = runargs("state", 3, (const char *[]){"-c", "%%Y", filename});
@@ -150,6 +174,7 @@ long lastmod(const char *filename)
   return value;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void workdir(int size, char buffer[size]) {
   char *result = run("pwd");
 

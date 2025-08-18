@@ -37,6 +37,7 @@ static inline __attribute__((unused)) int min(int a, int b) {
   return a < b ? a : b;
 }
 
+PUBLIC int  nstrcpy(char *dst, const char *src, unsigned int n);
 PUBLIC void sysargs(const char *command, int argc, const char *argv[argc]);
 PUBLIC void *run(const char *command);
 PUBLIC void *runargs(const char *command, int argc, const char *argv[argc]);
