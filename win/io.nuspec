@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>IO</id>
-	<version> 2025.8.18.1731 </version>
+	<version> 2025.8.18.1741 </version>
     <authors>Philippe Caron</authors>
     <description>IO package serves as the main OSAL package between Linux and Windows</description>
 	<readme>docs\README.md</readme>
@@ -17,6 +17,7 @@
     <file src="..\bin\x64\Release\IO.dll" target="lib\native\io.dll" />
     <file src="..\bin\x64\Release\IO.lib" target="lib\native\io.lib" />
     <file src="..\bin\x64\Release\IO.pdb" target="lib\native\io.pdb" />
+    <file src="..\inc\*.h"                target="build\native\include\" />
     <file src="..\win\io.targets"         target="build\native\io.targets" />
     <file src="..\win\io.props"           target="build\native\io.props" />
     <file src="..\README.md"              target="docs\README.md" />

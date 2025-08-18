@@ -5,7 +5,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\..\lib\native;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>diagnostic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>io.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>
