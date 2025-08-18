@@ -1,5 +1,3 @@
-#define MEMORY_WATCH
-
 #include <log.h>
 #include <directory.h>
 #include <path.h>
