@@ -14,7 +14,7 @@
 #endif
 
 #include <osal.h>
-#include "export.h"
+#include "io.export.h"
 
 // Enumeration of file permission types
 typedef enum file_permission {
@@ -24,10 +24,10 @@ typedef enum file_permission {
   FILE_EXECUTE
 } FilePermission;
 
-PUBLIC int fpath(const char *filename, int size, char buffer[size]);
-PUBLIC int fname(const char *filename, int size, char buffer[size]);
-PUBLIC int fext(const char *filename, int size, char buffer[size]);
-PUBLIC int fnamext(const char *filename, int size, char buffer[size]);
-PUBLIC int fexists(const char *filename, FilePermission permission);
+IO_EXPORT int fpath(const char *filename, int size, char buffer[size]);
+IO_EXPORT int fname(const char *filename, int size, char buffer[size]);
+IO_EXPORT int fext(const char *filename, int size, char buffer[size]);
+IO_EXPORT int fnamext(const char *filename, int size, char buffer[size]);
+IO_EXPORT int fexists(const char *filename, FilePermission permission);
 
 #endif

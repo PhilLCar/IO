@@ -8,10 +8,10 @@
 
 // CUT
 #include <diagnostic.h>
-#include "export.h"
 #include "osal.h"
 #include "file.h"
 #include "path.h"
+#include "io.export.h"
 
 #ifdef WIN
 #include <windows.h>
@@ -42,12 +42,12 @@ typedef struct dir_iterator {
   DirectoryItem  current;
 } DirectoryIterator;
 
-PUBLIC DirectoryIterator *dopen(const char *dirname);
-PUBLIC void               dclose(DirectoryIterator *iterator);
-PUBLIC DirectoryItem     *dnext(DirectoryIterator *iterator);
-PUBLIC int                ddone(DirectoryIterator *iterator);
-PUBLIC void               dclose(DirectoryIterator *iterator);
-PUBLIC void               dname(const DirectoryIterator *iterator, int size, char buffer[size]);
-PUBLIC int                dexists(const char *dirname);
+IO_EXPORT DirectoryIterator *dopen(const char *dirname);
+IO_EXPORT void               dclose(DirectoryIterator *iterator);
+IO_EXPORT DirectoryItem     *dnext(DirectoryIterator *iterator);
+IO_EXPORT int                ddone(DirectoryIterator *iterator);
+IO_EXPORT void               dclose(DirectoryIterator *iterator);
+IO_EXPORT void               dname(const DirectoryIterator *iterator, int size, char buffer[size]);
+IO_EXPORT int                dexists(const char *dirname);
 
 #endif

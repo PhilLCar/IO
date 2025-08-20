@@ -7,7 +7,7 @@
 
 // CUT
 #include <terminal.h>
-#include "export.h"
+#include "io.export.h"
 
 #ifdef WIN
 #undef ERROR
@@ -54,6 +54,6 @@
 // Fatal errors are always included
 #define FATAL(MESSAGE, ...) LOG(LOG_FATAL, MESSAGE __VA_OPT__(,) __VA_ARGS__)
 
-PUBLIC void loglvl(const char *filename, int line, int lvl, const char *message, ...);
+IO_EXPORT void loglvl(const char *filename, int line, int lvl, const char *message, ...);
 
 #endif

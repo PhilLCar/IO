@@ -9,7 +9,7 @@
 // CUT
 #include <diagnostic.h>
 #include "log.h"
-#include "export.h"
+#include "io.export.h"
 
 #ifdef WIN
 // Windows
@@ -37,16 +37,16 @@ static inline __attribute__((unused)) int min(int a, int b) {
   return a < b ? a : b;
 }
 
-PUBLIC int  nstrcpy(char *dst, const char *src, unsigned int n);
-PUBLIC void sysargs(const char *command, int argc, const char *argv[argc]);
-PUBLIC void *run(const char *command);
-PUBLIC void *runargs(const char *command, int argc, const char *argv[argc]);
+IO_EXPORT int  nstrcpy(char *dst, const char *src, unsigned int n);
+IO_EXPORT void sysargs(const char *command, int argc, const char *argv[argc]);
+IO_EXPORT void *run(const char *command);
+IO_EXPORT void *runargs(const char *command, int argc, const char *argv[argc]);
 
-PUBLIC void newdir(const char *dirname);
-PUBLIC void deldir(const char *dirname);
-PUBLIC void newfile(const char *filename);
-PUBLIC void delfile(const char *filename);
-PUBLIC long lastmod(const char *filename);
-PUBLIC void workdir(int size, char buffer[size]);
+IO_EXPORT void newdir(const char *dirname);
+IO_EXPORT void deldir(const char *dirname);
+IO_EXPORT void newfile(const char *filename);
+IO_EXPORT void delfile(const char *filename);
+IO_EXPORT long lastmod(const char *filename);
+IO_EXPORT void workdir(int size, char buffer[size]);
 
 #endif

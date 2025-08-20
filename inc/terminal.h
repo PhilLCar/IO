@@ -6,7 +6,7 @@
 #include <string.h>
 
 // CUT
-#include "export.h"
+#include "io.export.h"
 
 #ifdef WIN
 #include <windows.h>
@@ -156,14 +156,14 @@ typedef struct coordinate {
 } Coordinate;
 
 
-PUBLIC Coordinate gettermsize();
-PUBLIC void       clearterm();
-PUBLIC void       placecursor(int x, int y);
-PUBLIC void       movecursor(int x, int y);
-PUBLIC void       pushcursor();
-PUBLIC void       popcursor();
-PUBLIC void       ljust(const char *str, char *buffer, int size);
-PUBLIC void       rjust(const char *str, char *buffer, int size);
-PUBLIC void       cjust(const char *str, char *buffer, int size);
+IO_EXPORT Coordinate gettermsize();
+IO_EXPORT void       clearterm();
+IO_EXPORT void       placecursor(int x, int y);
+IO_EXPORT void       movecursor(int x, int y);
+IO_EXPORT void       pushcursor();
+IO_EXPORT void       popcursor();
+IO_EXPORT void       ljust(const char *str, char *buffer, int size);
+IO_EXPORT void       rjust(const char *str, char *buffer, int size);
+IO_EXPORT void       cjust(const char *str, char *buffer, int size);
 
 #endif
