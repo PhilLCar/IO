@@ -47,7 +47,22 @@
     <ClInclude Include="..\..\inc\terminal.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\*.h">
+    <ClInclude Include="..\..\inc\file.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\io.export.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\log.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\osal.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\path.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\terminal.h">
       <Filter>inc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\*.h">
@@ -229,6 +244,21 @@
     <ClCompile Include="..\..\src\*.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\*.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\*.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\*.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\*.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\*.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\deploy.ps1">
@@ -243,5 +273,6 @@
     <None Include="..\io.targets">
       <Filter>build</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
