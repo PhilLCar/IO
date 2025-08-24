@@ -18,6 +18,7 @@
 #define PATH_MAX_LENGTH 260 /* This is insanely small?? */
 #undef max
 #undef min
+#define fopen(PATH, PERM) ({ FILE *stream; fopen_s(&stream, PATH, PERM); stream;})
 #define popen  _popen
 #define pclose _pclose
 #define memcpy(D, S, L) memcpy_s(D, L, S, L)
