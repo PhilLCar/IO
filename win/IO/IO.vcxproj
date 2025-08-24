@@ -28,6 +28,7 @@
     <ClInclude Include="..\..\inc\osal.h" />
     <ClInclude Include="..\..\inc\path.h" />
     <ClInclude Include="..\..\inc\terminal.h" />
+    <ClInclude Include="..\..\inc\variadic.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\*.c" />
